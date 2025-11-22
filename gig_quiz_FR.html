@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz – Connais-tu Gigi ?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Tajawal", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #ffe7f7 0, #fef4ff 40%, #ffffff 100%);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: #ffffffee;
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+      padding: 20px 18px 26px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header {
+      margin-bottom: 16px;
+      border-bottom: 1px dashed #ffd3ec;
+      padding-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #ffe2f1;
+      color: #b30065;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .subtitle { font-size: 14px; color: #555; margin: 0; line-height: 1.6; }
+    .note { font-size: 11px; color: #999; margin-top: 6px; }
+
+    form { margin-top: 10px; }
+
+    .question-card {
+      border-radius: 18px;
+      border: 1px solid #f4d9ff;
+      background: #fff;
+      padding: 12px 12px 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 18px rgba(220, 150, 255, 0.08);
+    }
+
+    .question-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 6px;
+      align-items: baseline;
+    }
+
+    .question-number {
+      font-size: 13px;
+      color: #b30065;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #ffe7f7;
+    }
+
+    .question-text { font-size: 14px; margin: 2px 0 8px; }
+
+    .options { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .option input[type="radio"] { margin-top: 4px; accent-color: #ff6ca7; }
+
+    .option:hover { background: #fff6fd; border-color: #ffd3ec; }
+    .option.correct { background: #e6ffe7; border-color: #60c770; }
+    .option.incorrect-selected { background: #ffe6ea; border-color: #ff6c8a; }
+
+    .footer {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .btn-primary {
+      border: none;
+      cursor: pointer;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ff7fb1, #ff4f93);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 96, 150, 0.35);
+    }
+
+    .btn-secondary {
+      border-radius: 999px;
+      border: 1px solid #ffd3ec;
+      background: #fff8fd;
+      padding: 7px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #b30065;
+    }
+
+    .score-box {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #fff7fb;
+      border: 1px solid #ffd3ec;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .score-value { font-weight: 700; font-size: 16px; color: #b30065; }
+
+    .reaction-box {
+      margin-top: 14px;
+      padding: 10px 10px 12px;
+      border-radius: 18px;
+      background: #fff7fb;
+      border: 1px solid #ffd3ec;
+      display: none;
+      text-align: center;
+    }
+
+    .reaction-image {
+      max-width: 180px;
+      width: 60%;
+      display: block;
+      margin: 4px auto 0;
+    }
+
+    .reaction-caption { font-size: 13px; color: #555; margin-top: 6px; }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="badge">Quiz d’anniversaire de Gigi</div>
+      <h1>Connais-tu vraiment Gigi ?</h1>
+
+      <p class="subtitle">
+        Réponds à toutes les questions. Une seule réponse est correcte pour chaque question.
+      </p>
+
+      <p class="note">
+        Chaque question vaut 1 point.
+      </p>
+    </div>
+
+    <form id="quiz-form">
+      <div id="questions-container"></div>
+
+      <div class="footer">
+        <div>
+          <button type="submit" class="btn-primary">Corriger</button>
+          <button type="button" class="btn-secondary" id="reset-btn">Réinitialiser</button>
+
+          <div class="small-hint">Les bonnes réponses s’affichent en vert, les mauvaises en rouge.</div>
+        </div>
+
+        <div id="score-box" class="score-box" style="display:none;">
+          Score : <span class="score-value" id="score-value"></span>
+        </div>
+      </div>
+
+      <div id="reaction-box" class="reaction-box">
+        <div class="reaction-title">Réaction de Gigi</div>
+        <img id="reaction-image" class="reaction-image" src="" />
+        <div id="reaction-caption" class="reaction-caption"></div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const reactionImages = {
+      high: "data:image/jpeg;base64,PASTE_BASE64_HIGH_HERE",
+      mid:  "data:image/jpeg;base64,PASTE_BASE64_MID_HERE",
+      low:  "data:image/jpeg;base64,PASTE_BASE64_LOW_HERE"
+    };
+
+    const questions = [
+
+      { text: "Quelle est la relation de Gigi avec l’ail et l’oignon ?",
+        answers: ["Elle n’en mange jamais", "Elle en mangeait petite mais plus maintenant", "Elle les mange seulement s’ils sont très fins", "Elle adore l’odeur"],
+        correctIndex: 2 },
+
+      { text: "Quel mot Gigi utilise-t-elle pour dire qu’elle s’ennuie ?",
+        answers: ["Mal'a", "Ajzaneh", "Maleneh", "Dajrané"],
+        correctIndex: 1 },
+
+      { text: "Quand Gigi s’ennuie, que cherche-t-elle ?",
+        answers: ["Quelque chose qui la fait rire", "Un bon plat", "Quelque chose qui lui donne un choc", "Un café à chicha"],
+        correctIndex: 2 },
+
+      { text: "Quel plat Gigi cuisine souvent pour ses amis ?",
+        answers: ["Bamya", "Mujaddara", "Salade de pommes de terre", "Œufs à la tomate"],
+        correctIndex: 1 },
+
+      { text: "Combien de fois Gigi a oublié ses clés en 5 ans ?",
+        answers: ["2", "5", "7", "Plus de 9"],
+        correctIndex: 3 },
+
+      { text: "Quelle ville Gigi rêve de visiter en bateau ?",
+        answers: ["Venise", "Saint-Pétersbourg", "Barcelone", "Londres"],
+        correctIndex: 3 },
+
+      { text: "Qu’est-ce qui dérange le plus Gigi quand quelqu’un vient chez elle ?",
+        answers: ["Laisser des cheveux au sol", "Entrer avec les chaussures", "S’asseoir sur son lit avec habits extérieurs", "Laisser de la nourriture dans l’assiette"],
+        correctIndex: 0 },
+
+      { text: "Quel est le lien de Gigi avec le Liban ?",
+        answers: ["Sa mère est libanaise", "Elle est libanaise", "Elle a étudié au Liban", "Elle parle libanais pour faire style"],
+        correctIndex: 2 },
+
+      { text: "Quelle est la position de Gigi dans sa famille ?",
+        answers: ["Unique", "Aînée", "Cadette", "Au milieu"],
+        correctIndex: 2 },
+
+      { text: "Comment est écrit le prénom de Gigi dans son passeport ?",
+        answers: ["Jezel", "Gysel", "Jiselle", "Giselle"],
+        correctIndex: 0 },
+
+      { text: "Quelle est la couleur préférée de Gigi ?",
+        answers: ["Bleu", "Fuchsia", "Rose", "Vert/blanc/aubergine"],
+        correctIndex: 3 },
+
+      { text: "Quelle est la pointure de Gigi ?",
+        answers: ["37", "38", "39", "40"],
+        correctIndex: 1 },
+
+      { text: "Quel est le nom de la manager de Gigi ?",
+        answers: ["Françoise", "Melina", "Aurélie", "Bérangère"],
+        correctIndex: 3 },
+
+      { text: "Dans quel service de la SNCF Gigi travaille-t-elle ?",
+        answers: ["Communication & relation clients", "Planification des trajets", "Cybersécurité", "Pricing"],
+        correctIndex: 3 },
+
+      { text: "Combien de masters possède Gigi ?",
+        answers: ["1", "2", "3", "Aucun"],
+        correctIndex: 1 },
+
+      { text: "Quand Gigi est à bout, que dit-elle ?",
+        answers: ["Je veux sortir", "Je veux manger des sushis", "Je veux un enfant ou un chien"],
+        correctIndex: 2 },
+
+      { text: "Quel mot Gigi utilise le plus ?",
+        answers: ["J’ai faim", "J’ai sommeil", "Je veux voyager"],
+        correctIndex: 0 },
+
+      { text: "Qu’est-ce qui énerve Gigi le plus vite ?",
+        answers: ["Ne pas répondre immédiatement", "Manger sur le lit", "Oublier son anniversaire", "Vouloir un truc sans savoir quoi"],
+        correctIndex: 3 },
+
+      { text: "Quel plat Gigi cuisine le mieux ?",
+        answers: ["Couscous", "Mahshi", "Kouaj", "Tous ses plats"],
+        correctIndex: 1 },
+
+      { text: "Si Gigi disparaît une journée, où est-elle ?",
+        answers: ["Hololo", "En train de dormir", "En train de nettoyer", "En train de travailler"],
+        correctIndex: 1 },
+
+      { text: "Quelle chanteuse Gigi préfère chanter ?",
+        answers: ["Sherine", "Abeer", "Oum Kalthoum", "Saria"],
+        correctIndex: 0 },
+
+      { text: "Quelle chanson Gigi chante le mieux ?",
+        answers: ["Asfa", "Walada", "Ya menfakker", "Elle chante tout bien"],
+        correctIndex: 3 },
+
+      { text: "Quel serait le slogan de l’album de Gigi ?",
+        answers: ["Écoute-le bien", "Avec amour", "Écoutez-le et prenez un choc"],
+        correctIndex: 0 },
+
+      { text: "Que préfère faire Gigi mais ses amis pas assez ?",
+        answers: ["Escalade", "Voyager", "Danser", "Chicha"],
+        correctIndex: 0 },
+
+      { text: "Gigi déteste ses amis quand ils :",
+        answers: ["Mentent", "Disparaissent", "Fument", "Se mettent en couple"],
+        correctIndex: 2 },
+
+      { text: "Quelle activité fait Gigi le plus récemment ?",
+        answers: ["Danse", "Escalade", "Course", "Sommeil"],
+        correctIndex: 1 },
+
+      { text: "Quel est la plus grande peur de Gigi ?",
+        answers: ["Cheveux au sol", "Manger sur le lit", "Appel de sa mère à 2h", "SMS de sa sœur tard"],
+        correctIndex: 0 },
+
+      { text: "Quel red flag Gigi voit chez un homme ?",
+        answers: ["Fente visible", "Pas de barbe", "Cheveux longs", "Skinny jeans qui tombe"],
+        correctIndex: 0 },
+
+      { text: "Comment Gigi réagit quand elle est en colère ?",
+        answers: ["????!!!!", "Vous m’avez vraiment énervée", "Elle n’ouvre pas ses messages", "Elle va courir"],
+        correctIndex: 1 },
+
+      { text: "Quand Gigi ne peut-elle pas chanter ?",
+        answers: ["Envie d’aller aux toilettes", "Cheveux gras", "Elle mange", "Elle a faim"],
+        correctIndex: 3 },
+
+      { text: "Combien de temps dure la douche de Gigi le week-end ?",
+        answers: ["3 heures", "15 minutes", "1 heure", "Elle ne se douche pas"],
+        correctIndex: 0 },
+
+      { text: "Activité de Gigi après la douche ?",
+        answers: ["Dormir jusqu’au lendemain", "Marcher", "Cuisiner", "Yoga"],
+        correctIndex: 0 },
+
+      { text: "Comment Gigi écrit-elle ses messages ?",
+        answers: ["Audios", "Messages longs", "Mot par mot avec répétitions"],
+        correctIndex: 2 },
+
+      { text: "Mauvaise habitude de Gigi ?",
+        answers: ["Ronger ses ongles", "Gaz devant amis", "Trop de café", "Pas se doucher"],
+        correctIndex: 0 },
+
+      { text: "Quand Gigi aime une chanson :",
+        answers: ["Story", "Elle la fait écouter aux amis", "Elle la garde pour elle"],
+        correctIndex: 1 },
+
+      { text: "Quel duo de fruits Gigi préfère ?",
+        answers: ["Pêche + raisin", "Fraise + pastèque", "Banane + mangue", "Pas de fruits"],
+        correctIndex: 1 },
+
+      { text: "Prénom du futur fils de Gigi ?",
+        answers: ["Adam", "Yazan", "Epsilon", "Béranger"],
+        correctIndex: 0 },
+
+      { text: "Prénom de la future fille de Gigi ?",
+        answers: ["Cham", "Bérangère", "Salma", "Amal"],
+        correctIndex: 0 },
+
+      { text: "Qu’est-ce qui attire Gigi chez un homme ?",
+        answers: ["Sourire", "Yeux", "Zone barbe-torse", "Fesses"],
+        correctIndex: 2 },
+
+      { text: "Combien de fois Gigi porte-t-elle la même tenue ?",
+        answers: ["Une fois", "5 fois", "Deux fois", "24/7"],
+        correctIndex: 3 },
+
+      { text: "Quel instrument Gigi veut apprendre ?",
+        answers: ["Tambour", "Batterie", "Violon", "Guitare"],
+        correctIndex: 1 },
+
+      { text: "Si tu dors avec Gigi, tu risques :",
+        answers: ["Harcèlement", "Elle chante", "Cri soudain", "Histoire avant de dormir"],
+        correctIndex: 3 },
+
+      { text: "La plus belle qualité de Gigi :",
+        answers: ["Sa voix", "Sa spontanéité", "Sa gentillesse", "Tout"],
+        correctIndex: 3 },
+
+      { text: "Quel âge Gigi fête-t-elle aujourd’hui ?",
+        answers: ["18", "27", "29", "30"],
+        correctIndex: 2 }
+
+    ];
+
+    const questionsContainer = document.getElementById("questions-container");
+    const form = document.getElementById("quiz-form");
+    const scoreBox = document.getElementById("score-box");
+    const scoreValueEl = document.getElementById("score-value");
+    const resetBtn = document.getElementById("reset-btn");
+    const reactionBox = document.getElementById("reaction-box");
+    const reactionImage = document.getElementById("reaction-image");
+    const reactionCaption = document.getElementById("reaction-caption");
+
+
+    function renderQuestions() {
+      questionsContainer.innerHTML = "";
+      questions.forEach((q, index) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+
+        const title = document.createElement("div");
+        title.className = "question-title";
+
+        const numberSpan = document.createElement("span");
+        numberSpan.className = "question-number";
+        numberSpan.textContent = index + 1;
+
+        const textSpan = document.createElement("span");
+        textSpan.className = "question-text";
+        textSpan.textContent = q.text;
+
+        title.appendChild(numberSpan);
+        title.appendChild(textSpan);
+
+        const optionsDiv = document.createElement("div");
+        optionsDiv.className = "options";
+
+        q.answers.forEach((answer, answerIndex) => {
+          const optionId = `q${index}_a${answerIndex}`;
+          const label = document.createElement("label");
+          label.className = "option";
+          label.setAttribute("for", optionId);
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `q${index}`;
+          input.id = optionId;
+          input.value = answerIndex;
+
+          const spanText = document.createElement("span");
+          spanText.className = "option-text";
+          spanText.textContent = answer;
+
+          label.appendChild(input);
+          label.appendChild(spanText);
+          optionsDiv.appendChild(label);
+        });
+
+        card.appendChild(title);
+        card.appendChild(optionsDiv);
+        questionsContainer.appendChild(card);
+      });
+    }
+
+
+    function clearHighlights() {
+      const optionLabels = document.querySelectorAll(".option");
+      optionLabels.forEach((label) => {
+        label.classList.remove("correct", "incorrect-selected");
+      });
+    }
+
+    function resetReaction() {
+      reactionBox.style.display = "none";
+      reactionCaption.textContent = "";
+      reactionImage.src = "";
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      clearHighlights();
+      resetReaction();
+
+      let score = 0;
+
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        const optionLabels = document.querySelectorAll(
+          `#questions-container .question-card:nth-child(${index + 1}) .option`
+        );
+
+        if (optionLabels[q.correctIndex]) {
+          optionLabels[q.correctIndex].classList.add("correct");
+        }
+
+        if (selected) {
+          const selectedIndex = parseInt(selected.value, 10);
+          if (selectedIndex === q.correctIndex) {
+            score += 1;
+          } else {
+            if (optionLabels[selectedIndex]) {
+              optionLabels[selectedIndex].classList.add("incorrect-selected");
+            }
+          }
+        }
+      });
+
+      const total = questions.length;
+      const percent = (score / total) * 100;
+
+      scoreBox.style.display = "inline-flex";
+      scoreValueEl.textContent = `${score} / ${total}`;
+
+      let mood;
+      let caption;
+
+      if (percent >= 80) {
+        mood = "high";
+        caption = "Très bon score.";
+      } else if (percent >= 40) {
+        mood = "mid";
+        caption = "Score moyen. Tu peux faire mieux.";
+      } else {
+        mood = "low";
+        caption = "Score faible.";
+      }
+
+      reactionImage.src = reactionImages[mood];
+      reactionCaption.textContent = caption;
+      reactionBox.style.display = "block";
+    });
+
+    resetBtn.addEventListener("click", () => {
+      form.reset();
+      scoreBox.style.display = "none";
+      clearHighlights();
+      resetReaction();
+    });
+
+    renderQuestions();
+  </script>
+
+</body>
+</html>
